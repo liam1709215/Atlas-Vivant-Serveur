@@ -904,3 +904,80 @@ function destructionCompteLocal() {
   window.location.reload(); // Recharge la page à zéro
 }
 </script>
+
+<!-- 1. Connexion au système Supabase -->
+<script src="https://jsdelivr.net"></script>
+
+<script>
+  // Vos identifiants de connexion uniques
+  const SUPABASE_URL = "https://bpiszumjpvahfijaimaw.supabase.co";
+  const SUPABASE_ANON_KEY = "COLLEZ_ICI_VOTRE_CLE_ANON_PUBLIQUE"; 
+
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // 2. FONCTION POUR PUBLIER UN MESSAGE (S'envoie chez tout le monde)
+  async function publierMessage(pseudo, texte) {
+    if (!texte.trim()) return;
+
+    const { error } = await supabase
+      .from('discussion')
+      .insert([{ auteur: pseudo, contenu: texte }]);
+
+    if (error) {
+      console.error("Erreur de publication :", error.message);
+    } else {
+      // On recharge immédiatement les messages après avoir publié
+      chargerDiscussion();
+    }
+  }
+
+  // 3. FONCTION POUR SUPPRIMER UN MESSAGE (S'efface chez tout le monde)
+  async function supprimerMessage(idDuMessage) {
+    const { error } = await supabase
+      .from('discussion')
+      .delete()
+      .eq('id', idDuMessage);
+
+    if (error) {
+      console.error("Erreur de suppression :", error.message);
+    } else {
+      // On recharge immédiatement pour voir la disparition
+      chargerDiscussion();
+    }
+  }
+
+  // 4. FONCTION POUR CHARGER ET REFRESH LA DISCUSSION
+  async function chargerDiscussion() {
+    const { data, error } = await supabase
+      .from('discussion')
+      .select('*')
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error("Erreur de chargement :", error.message);
+      return;
+    }
+
+    // --- ZONE DE CODE À ADAPTER À VOTRE INTERFACE HTML ---
+    // Trouvez l'élément HTML qui affiche vos messages (ex: id="chat")
+    const zoneChat = document.getElementById('votre-id-de-zone-de-chat'); 
+    if (zoneChat) {
+      zoneChat.innerHTML = ""; // On vide l'écran pour réafficher proprement
+      
+      data.forEach(msg => {
+        zoneChat.innerHTML += `
+          <p>
+            <strong>${msg.auteur} :</strong> ${msg.contenu}
+            <button onclick="supprimerMessage(${msg.id})" style="color:red; border:none; background:none; cursor:pointer;">[Supprimer]</button>
+          </p>
+        `;
+      });
+    }
+  }
+
+  // FORCE LE RAFAÎCHISSEMENT TOUTES LES 3 SECONDES POUR VOTRE AMI ET VOUS
+  setInterval(chargerDiscussion, 3000);
+  
+  // Charge la discussion dès l'ouverture de la page
+  window.onload = chargerDiscussion;
+</script>
