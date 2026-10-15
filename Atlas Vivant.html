@@ -883,3 +883,12 @@ if(SRVON){document.documentElement.classList.add("srv");srvInit()}
 </script>
 
 <button onclick="envoyerUnMessage('MonPseudo', 'Salut !')">Envoyer</button>
+
+async function forcerDeconnexion() {
+  const { error } = await supabase.auth.signOut();
+  
+  if (!error) {
+    alert("L'utilisateur a été déconnecté localement !");
+    window.location.reload(); // Actualise la page pour nettoyer l'interface
+  }
+}
