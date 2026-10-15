@@ -884,11 +884,23 @@ if(SRVON){document.documentElement.classList.add("srv");srvInit()}
 
 <button onclick="envoyerUnMessage('MonPseudo', 'Salut !')">Envoyer</button>
 
-async function forcerDeconnexion() {
-  const { error } = await supabase.auth.signOut();
+<!-- Bouton rouge à placer en bas de votre page de wiki -->
+<button onclick="destructionCompteLocal()" style="background-color: #d9534f; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+  ⚠️ Nettoyer le navigateur et effacer les comptes locaux
+</button>
+
+<script>
+function destructionCompteLocal() {
+  // Vide instantanément toute la mémoire de script stockée par le site
+  localStorage.clear();
+  sessionStorage.clear();
   
-  if (!error) {
-    alert("L'utilisateur a été déconnecté localement !");
-    window.location.reload(); // Actualise la page pour nettoyer l'interface
-  }
+  // Supprime tous les cookies créés localement
+  document.cookie.split(";").forEach(function(c) {
+    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+  });
+
+  alert("La mémoire locale a été vidée avec succès. Le compte n'existe plus !");
+  window.location.reload(); // Recharge la page à zéro
 }
+</script>
