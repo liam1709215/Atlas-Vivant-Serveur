@@ -841,3 +841,44 @@ lock(!SRVON&&!PUB&&!ME&&!U.length);who();go();
 if(SRVON){document.documentElement.classList.add("srv");srvInit()}
 
 </script></body></html>
+
+<!-- 1. Importation du script Supabase (indispensable dans le HTML) -->
+<script src="https://jsdelivr.net"></script>
+
+<script>
+  // 2. Initialisation de la connexion à votre serveur Supabase
+  const SUPABASE_URL = "https://supabase.co";
+  const SUPABASE_ANON_KEY = "VOTRE_CLE_ANON_PUBLIQUE"; // <--- REMPLACEZ PAR VOTRE CLÉ ANON (à trouver dans Supabase > Settings > API)
+
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // 3. Fonction pour envoyer un message dans la table "discussion"
+  async function envoyerUnMessage(nomAuteur, texteMessage) {
+    const { error } = await supabase
+      .from('discussion')
+      .insert([{ auteur: nomAuteur, contenu: texteMessage }]);
+
+    if (error) {
+      console.error("Erreur d'envoi :", error.message);
+    } else {
+      console.log("Message bien enregistré dans Supabase !");
+    }
+  }
+
+  // 4. Fonction pour récupérer et afficher les messages
+  async function chargerLesMessages() {
+    const { data, error } = await supabase
+      .from('discussion')
+      .select('*')
+      .order('created_at', { ascending: true });
+
+    if (data) {
+      console.log("Voici les messages reçus :", data);
+      // C'est ici que vous ajouterez le code pour afficher 'data' dans votre zone de chat HTML
+    }
+  }
+
+  // Charger les messages automatiquement toutes les 3 secondes
+  setInterval(chargerLesMessages, 3000);
+</script>
+
