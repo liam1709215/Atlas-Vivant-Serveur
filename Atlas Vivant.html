@@ -981,3 +981,62 @@ function destructionCompteLocal() {
   // Charge la discussion dès l'ouverture de la page
   window.onload = chargerDiscussion;
 </script>
+
+<!-- 1. Connexion au système Supabase -->
+<script src="https://jsdelivr.net"></script>
+
+<script>
+  // Vos identifiants de connexion Supabase
+  const SUPABASE_URL = "https://bpiszumjpvahfijaimaw.supabase.co";
+  const SUPABASE_ANON_KEY = "VOTRE_CLE_ANON_PUBLIQUE"; // À récupérer dans l'engrenage (Settings > API) sur votre compte Supabase
+
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // 2. ENVOYER UN MESSAGE
+  async function publierMessage(pseudo, texte) {
+    if (!texte.trim()) return;
+    const { error } = await supabase
+      .from('discussion')
+      .insert([{ auteur: pseudo, contenu: texte }]);
+
+    if (!error) chargerDiscussion(); // Recharge la liste
+  }
+
+  // 3. SUPPRIMER UN MESSAGE
+  async function supprimerMessage(idDuMessage) {
+    const { error } = await supabase
+      .from('discussion')
+      .delete()
+      .eq('id', idDuMessage);
+
+    if (!error) chargerDiscussion(); // Efface de l'écran
+  }
+
+  // 4. CHARGER ET AFFICHER EN DIRECT
+  async function chargerDiscussion() {
+    const { data, error } = await supabase
+      .from('discussion')
+      .select('*')
+      .order('created_at', { ascending: true });
+
+    if (error) return;
+
+    // REMPLACEZ 'chat-box' PAR L'ID DE VOTRE ZONE DE DISCUSSION DANS VOTRE HTML
+    const zoneChat = document.getElementById('chat-box'); 
+    if (zoneChat) {
+      zoneChat.innerHTML = ""; // On vide l'ancien affichage
+      data.forEach(msg => {
+        zoneChat.innerHTML += `
+          <div class="message">
+            <strong>${msg.auteur} :</strong> ${msg.contenu}
+            <button onclick="supprimerMessage(${msg.id})" style="color:red; border:none; background:none; cursor:pointer; margin-left:10px;">[Supprimer]</button>
+          </div>
+        `;
+      });
+    }
+  }
+
+  // Rafraîchit l'écran toutes les 3 secondes pour votre ami et vous
+  setInterval(chargerDiscussion, 3000);
+  window.onload = chargerDiscussion;
+</script>
