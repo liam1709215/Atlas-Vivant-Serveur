@@ -1,0 +1,25 @@
+<form id="newsletter-form">
+  <input type="email" name="email" placeholder="Votre e-mail" required>
+  <button type="submit">S'inscrire</button>
+</form>
+<p id="message"></p>
+
+<script>
+  const form = document.getElementById('newsletter-form');
+  
+  // Remplacez ceci par l'URL copiée à l'étape 3
+  const scriptURL = 'https://script.google.com/u/0/home/projects/1-XN4zo6Tp1ZgaAhK2eGEUEzTujKv8bbDEAEfzI9ZOa-EHkfOsMpcl_kX/edit';
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const formData = new FormData(form);
+
+    // Le mode 'no-cors' évite que le navigateur bloque la requête pour des raisons de sécurité inter-domaines
+    fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' })
+      .then(() => {
+        document.getElementById('message').innerText = "Merci pour votre inscription !";
+        form.reset();
+      })
+      .catch(error => console.error('Erreur!', error.message))
+  });
+</script>
