@@ -2,7 +2,7 @@
   <input type="email" name="email" placeholder="Votre e-mail" required>
   
   <!-- Le pot de miel est inséré ici -->
-  <input type="text" name="website" id="honeypot" tabindex="-1" autocomplete="off">
+  <input type="text" name="website" id="honeypot" tabindex="-1" autocomplete="off" style="display: none !important;">
   
   <button type="submit">S'inscrire</button>
 </form>
