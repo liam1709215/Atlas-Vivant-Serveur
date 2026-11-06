@@ -1,7 +1,7 @@
 <form id="newsletter-form">
   <input type="email" name="email" placeholder="Votre e-mail" required>
   
-  <!-- Le pot de miel est inséré ici -->
+  <!-- Le pot de miel est inséré ici, avec son style invisible -->
   <input type="text" name="website" id="honeypot" tabindex="-1" autocomplete="off" style="display: none !important;">
   
   <button type="submit">S'inscrire</button>
@@ -11,25 +11,36 @@
 <script>
   const form = document.getElementById('newsletter-form');
   
-  // L'URL de ton script (à compléter si elle est tronquée)
+  // N'oublie pas de mettre ton URL complète ici !
   const scriptURL = 'https://script.google.com/u/0/home/projects/1-XN4zo6Tp1ZgaAhK2eGEUEzTuj...';
 
   form.addEventListener('submit', e => {
     e.preventDefault();
 
-    // 1. Vérification du pot de miel
+    // 1. Vérification du pot de miel (Anti-robot)
     const honeypot = document.getElementById('honeypot').value;
     if (honeypot !== "") {
       console.log("Soumission ignorée");
-      return; // Stoppe l'envoi si le champ invisible est rempli
+      return; 
     }
 
-    // 2. Envoi des données si tout est normal
+    // 2. Vérification stricte du format de l'e-mail
+    const emailInput = document.querySelector('input[name="email"]').value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!emailRegex.test(emailInput)) {
+      document.getElementById('message').innerText = "Veuillez entrer une adresse e-mail valide (ex: nom@domaine.com).";
+      document.getElementById('message').style.color = "red";
+      return; 
+    }
+
+    // 3. Envoi des données vers Google Sheets
     const formData = new FormData(form);
 
     fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' })
       .then(() => {
         document.getElementById('message').innerText = "Merci pour votre inscription !";
+        document.getElementById('message').style.color = "green";
         form.reset();
       })
       .catch(error => console.error('Erreur!', error.message))
